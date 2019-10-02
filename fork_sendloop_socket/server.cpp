@@ -1,19 +1,30 @@
 #include <stdio.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
 #include <memory.h>
+#include <signal.h>
 
 // #define SERVER_LISTEN_ADDR "127.0.0.1"
 #define SERVER_LISTEN_PORT 12345
 #define SERVER_MAX_LISTEN_FD_SIZE 1000
 #define MAX_BUFFER_SIZE 1024
 
+void sig_chld(int sig) {
+    pid_t pid;
+    int stat;
+    while ((pid = waitpid(-1, &stat, WNOHANG)) > 0) {
+        printf("线程终止:pid=%d\n", pid);
+    }
+}
+
 int main(int argc, char** argv) {
+    signal(SIGCHLD,sig_chld);
     int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (sock_fd < 0) {
         printf("创建socket失败, error_code=%d\n", sock_fd);
@@ -92,7 +103,7 @@ int main(int argc, char** argv) {
                 } else if(read_size == 0) {
                     printf("client端关闭连接\n");
                     close(connect_fd);
-                    printf("子进程即将推出, 父进程pid=%d, 子进程pid=%d\n", getppid(), getpid());
+                    printf("子进程即将退出, 父进程pid=%d, 子进程pid=%d\n", getppid(), getpid());
                     return 0;
                 } else { // read_size < 0
                     if (errno == EINTR) {
