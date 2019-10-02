@@ -19,7 +19,7 @@ void sig_chld(int sig) {
     pid_t pid;
     int stat;
     while ((pid = waitpid(-1, &stat, WNOHANG)) > 0) {
-        printf("线程终止:pid=%d\n", pid);
+        printf("进程终止:pid=%d\n", pid);
     }
 }
 
