@@ -58,6 +58,10 @@ int main(int argc, char** argv) {
         socklen_t  client_addr_len;
         int connect_fd = accept(sock_fd, (struct sockaddr*)&client_addr, &client_addr_len);
         if (connect_fd < 0) {
+            if (errno == EINTR) {
+                printf("accept遇到系统中断\n");
+                continue;
+            }
             printf("client connect失败, error_code=%d\n", connect_fd);
             return -1;
         }
