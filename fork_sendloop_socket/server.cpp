@@ -121,7 +121,6 @@ int main(int argc, char** argv) {
         }
     }
     close(sock_fd);
-    // waitpid(pid, NULL, 0);// 僵尸进程暂时没想好如何处理
     printf("server端退出\n");
     return 0;
 }
